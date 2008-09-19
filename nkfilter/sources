@@ -1,0 +1,8 @@
+TARGETNAME=nkfilter
+TARGETPATH=obj
+TARGETTYPE=DRIVER
+DRIVERTYPE=WDM
+
+TARGETLIBS=..\shared\nkcodec.lib
+INCLUDES=..\shared
+SOURCES=driver_entry.c dispatch_pnp.c misc.c dispatch_scsi.c

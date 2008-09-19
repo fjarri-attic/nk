@@ -1,0 +1,5 @@
+TARGETNAME=nkcodec
+TARGETPATH=obj
+TARGETTYPE=LIBRARY
+
+SOURCES=nk_codec.c matrices.c galua_field.c formatting.c

@@ -1,0 +1,8 @@
+TARGETNAME=nkcontrol
+TARGETPATH=obj
+TARGETTYPE=PROGRAM
+
+UMTYPE=console
+TARGETLIBS=..\shared\nkcodec.lib $(SDK_LIB_PATH)\setupapi.lib $(SDK_LIB_PATH)\advapi32.lib
+INCLUDES=..\shared
+SOURCES=nkcontrol.c createimage.c install.c
