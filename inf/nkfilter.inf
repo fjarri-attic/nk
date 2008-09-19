@@ -2,14 +2,14 @@
 ;
 ; Installation inf for the nkfilter
 ;
-; Copyright (c) SWsoft MIPT
+; Copyright (c) Bogdan Opanchuk
 ;
 
 [Version]
 Signature = "$Windows NT$"
 Class     = CDROM
 ClassGUID = {4d36e965-e325-11ce-bfc1-08002be10318}
-Provider  = %msft%
+Provider  = %prov%
 DriverVer = 03/22/2002,5.1.2600.0
 
 ;
@@ -60,5 +60,5 @@ LoadOrderGroup = "PnP Filter"
 
 [Strings]
 
-msft         = "SW Soft"
-service_desc = "NK Scheme Filter Driver"
+prov         = "Manticore"
+service_desc = "NK-CD Filter Driver"
