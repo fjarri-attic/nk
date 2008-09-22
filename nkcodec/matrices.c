@@ -53,34 +53,31 @@ VOID GFInvertM(OUT UCHAR *res, IN OUT UCHAR *a, IN UCHAR n)
 	UCHAR t;
 	UCHAR i, j, k;
 
-	// «аписываем в res единичную матрицу
+	// Fill res with identity matrix
 	for(i=0; i<n; i++)
 		for(j=0; j<n; j++)
 			res[i*n+j] = (i==j) ? 1 : 0; 
 
-	// ¬ычисл€ем обратную матрицу методом √аусса
-	// «аписываем в res единичную матрицу и совершаем одинаковые линейные
-	// преобразовани€ над строками res и a, пока a не перейдет в единичную
-	// тогда в res будет находитьс€ обратна€ матрица
+	// Use Gauss-Jordan method for matrix inversion
 
 	for(i=0; i<n; i++)
-	// ƒл€ каждого столбца
+	// For each column
 	{
-		// »щем строку не выше строки i с ненулевым i-тым элементом
-		// “ака€ строка существует, т.к. матрица a невырождена
-		// ≈е номер запишетс€ в j
+		// Search for the row, whose number is not lower than i and with non-zero i-th element
+		// Such row exists, because the matrix is non-singular
+		// It's number will be stored as j
 		for(j=i; j<n; j++)
 			if(a[j*n+i] != 0) break;
 
 		if(j!=i)
-		// ƒл€ удобства нужно переставить i-тую и j-тую строки
+		// Swap i-th and j-th rows for convenience
 			for(k=0; k<n; k++)
 			{
 				GFSwap(a[i*n+k], a[j*n+k]);
 				GFSwap(res[i*n+k], res[j*n+k]);
 			}
 
-		// Ќормируем i-тую строку так, чтобы ее i-тый элемент был равен 1
+		// Normalize i-th row so that its i-th element be equal to 1
 		t = a[i*n+i];
 		for(k=0; k<n; k++)
 		{
@@ -90,8 +87,8 @@ VOID GFInvertM(OUT UCHAR *res, IN OUT UCHAR *a, IN UCHAR n)
 
 		for(j=0; j<n; j++)
 			if(j!=i)
-			// ƒл€ каждой строки кроме i-той вычитаем из нее i-тую строку с таким 
-			// множителем, чтобы обнулить i-тый элемент этой строки
+			// For each row except for i-th one, subtract i-th row with multiplier
+			// that turns i-th element of this row to zero
 			{
 				t = a[j*n+i];
 				for(k=0; k<n; k++)

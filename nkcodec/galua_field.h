@@ -1,16 +1,16 @@
 // ----------------------------------------------------
-// Функции для умножения и деления в поле Галуа GF(2^8)
+// Galois field operations (for GF(2^8))
 // ----------------------------------------------------
-// Для сложения и вычитания использовать ^ (XOR)
-// Нулевой элемент 0, единичный элемент 1
-// Перед использованием функций GFMul/GFDiv выполнить функцию GFFillTables
+// Additions and subtraction is performed by ^ (XOR)
+// Zero element is 0, identity is 1
+// Before using GFMul()/GFDiv() execute GFFillTables()
 
 #include "defines.h"
 
-// Поменять местами значения двух переменных 
+// Swap two ariables
 #define GFSwap(x, y) ((x)^=(y), (y)^=(x), (x)^=(y))
 
-// Умножение и деление
-// Результат GFDiv при y=0 не имеет математического смысла
+// Multiplication and division
+// GFDiv result when y=0 is unspecified
 UCHAR GFMul(IN UCHAR x, IN UCHAR y);
 UCHAR GFDiv(IN UCHAR x, IN UCHAR y);

@@ -1,37 +1,36 @@
-// --------------------------------------------------------------------------
-// Функции для работы с векторами и матрицами из элементов поля Галуа GF(2^8)
-// --------------------------------------------------------------------------
-// В целях совместимости нигде в функциях память динамически не выделяется
+// -----------------------------
+// Matrix operations for GF(2^8)
+// -----------------------------
+// Memory is allocated by user
 
 #include "defines.h"
 
-// Умножение двух векторов длиной n
+// Dot product
 UCHAR GFMulVV(IN UCHAR *x, IN UCHAR *y, UCHAR n);
 
-// Умножение матрицы n*n на вектор высотой n
-// a - указатель на первый элемент матрицы, расположенной в памяти построчно
-// По указателю res должна быть выделена область памяти размером n
+// Matrix-vector multiplication
+// a - pointer to n*n matrix
+// res - pointer to n buffer
 VOID GFMulMV(OUT UCHAR *res, IN UCHAR *a, IN UCHAR *x, IN UCHAR n);
 
-// Умножение строки длиной n на матрицу n*n 
-// a - указатель на первый элемент матрицы, расположенной в памяти построчно
-// По указателю res должна быть выделена область памяти размером n
+// Vector-matrix multiplication
+// a - pointer to n*n matrix
+// res - pointer to n*n buffer
 VOID GFMulVM(OUT UCHAR *res, IN UCHAR *x, IN UCHAR *a, IN UCHAR n);
 
-// Умножение двух матриц n*n
-// a, b - указатели на первые элементы матриц, расположенных в памяти построчно
-// По указателю res должна быть выделена область памяти размером n*n
+// Matrix-matrix multiplication
+// a and b - pointers to n*n matrix
+// res - pointer to n*n buffer
 VOID GFMulMM(OUT UCHAR *res, IN UCHAR *a, IN UCHAR *b, IN UCHAR n);
 
-// Вычисление обратной матрицы для матрицы a
-// a - указатель на первый элемент матрицы, расположенной в памяти построчно
-// По указателю res должна быть выделена область памяти размером n*n
-// ! Предполагается, что матрица a невырождена
-// ! Матрица a после выполнения функции портится
+// Get inversed matrix for a
+// a - pointer to n*n matrix
+// res - pointer to n*n buffer
+// ! a is assumed to be non-singular
+// ! functions spoils contents of a
 VOID GFInvertM(OUT UCHAR *res, IN OUT UCHAR *a, IN UCHAR n);
 
-// Создание базисного вектора для разрезания файлов
-// number - номер вектора (впоследствии используется для построения
-// матрицы склейки)
-// По указателю res должна быть выделена область памяти размером n
+// Create basis vector for encoding
+// number - vector number
+// res - pointer to n buffer
 VOID GFCreateBasisVector(OUT UCHAR *res, IN UCHAR number, IN UCHAR n);
