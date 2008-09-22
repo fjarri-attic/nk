@@ -1,7 +1,42 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nkcodec", "nkcodec\nkcodec.vcproj", "{64907CEE-4C46-446D-A72D-3B8307164263}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nkcontrol", "nkcontrol\nkcontrol.vcproj", "{1CEEB3D6-5B0C-48A0-984D-0E263B838F0F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nkfilter", "nkfilter\nkfilter.vcproj", "{07BFD60E-C989-429B-A8D8-798EA3228CD5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{626D932B-98CF-4AEE-BF0E-AE9847D3A77C}"
+	ProjectSection(SolutionItems) = preProject
+		shared\interface.h = shared\interface.h
+		shared\nkcodec.h = shared\nkcodec.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "inf", "inf", "{9318D9D3-883D-491F-89EC-AF1CB0382342}"
+	ProjectSection(SolutionItems) = preProject
+		inf\nkfilter.inf = inf\nkfilter.inf
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{64907CEE-4C46-446D-A72D-3B8307164263}.Debug|Win32.ActiveCfg = Debug|Win32
+		{64907CEE-4C46-446D-A72D-3B8307164263}.Debug|Win32.Build.0 = Debug|Win32
+		{64907CEE-4C46-446D-A72D-3B8307164263}.Release|Win32.ActiveCfg = Release|Win32
+		{64907CEE-4C46-446D-A72D-3B8307164263}.Release|Win32.Build.0 = Release|Win32
+		{1CEEB3D6-5B0C-48A0-984D-0E263B838F0F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1CEEB3D6-5B0C-48A0-984D-0E263B838F0F}.Debug|Win32.Build.0 = Debug|Win32
+		{1CEEB3D6-5B0C-48A0-984D-0E263B838F0F}.Release|Win32.ActiveCfg = Release|Win32
+		{1CEEB3D6-5B0C-48A0-984D-0E263B838F0F}.Release|Win32.Build.0 = Release|Win32
+		{07BFD60E-C989-429B-A8D8-798EA3228CD5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{07BFD60E-C989-429B-A8D8-798EA3228CD5}.Debug|Win32.Build.0 = Debug|Win32
+		{07BFD60E-C989-429B-A8D8-798EA3228CD5}.Release|Win32.ActiveCfg = Release|Win32
+		{07BFD60E-C989-429B-A8D8-798EA3228CD5}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
