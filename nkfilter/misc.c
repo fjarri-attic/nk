@@ -1,7 +1,6 @@
 //
-// Структуры данных и вспомогательные функции
+// Data structures and auxiliary functions
 //
-
 #include "misc.h"
 
 //
@@ -12,18 +11,18 @@ NTSTATUS PassIrp(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 
 	pDeviceExtension = (PDEVICE_EXTENSION)pDeviceObject->DeviceExtension;
 
-	// Попытка входа в защищенную секцию
+	// try to acquire lock
 	status = IoAcquireRemoveLock(&pDeviceExtension->RemoveLock, pIrp);
     
-	// Если устройство уже удаляется - завершаем IRP
+	// if the device is also removing - complete IRP
 	if (status != STATUS_SUCCESS)
 		return CompleteRequest(pIrp, status, 0, FALSE);
 
-	// Передаем IRP следующему в стеке драйверу
+	// pass IRP further
 	IoSkipCurrentIrpStackLocation(pIrp); 
 	status = IoCallDriver(pDeviceExtension->pNextDeviceObject, pIrp);
 
-	// Выходим из защищенной секции
+	// release lock
 	IoReleaseRemoveLock(&pDeviceExtension->RemoveLock, pIrp);
 
 	return status;
@@ -37,22 +36,21 @@ NTSTATUS DispatchPower(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 	
 	pDeviceExtension = (PDEVICE_EXTENSION)pDeviceObject->DeviceExtension;
 
-	// Сигнализируем Power Manager'у о том, что драйвер готов обрабатывать
-	// следующую IRP_MJ_POWER
+	// tell Power Manager that the driver is ready to handle next IRP_MJ_POWER
 	PoStartNextPowerIrp(pIrp);
 
-	// Попытка входа в защищенную секцию
+	// acquire lock
 	status = IoAcquireRemoveLock(&pDeviceExtension->RemoveLock, pIrp);
 
-	// Если устройство уже удаляется - завершаем IRP
+	// if the device is also removing - complete IRP
 	if (status != STATUS_SUCCESS)
 		return CompleteRequest(pIrp, status, 0, FALSE);
 
-	// Передаем IRP следующему в стеке драйверу
+	// pass IRP further
 	IoSkipCurrentIrpStackLocation(pIrp);
 	status = PoCallDriver(pDeviceExtension->pNextDeviceObject, pIrp);
 
-	// Выходим из защищенной секции
+	// release lock
 	IoReleaseRemoveLock(&pDeviceExtension->RemoveLock, pIrp);
 
 	return status;
@@ -66,12 +64,11 @@ NTSTATUS CompleteRequest(IN PIRP pIrp, IN NTSTATUS status, IN ULONG_PTR info, IN
 	pIrp->IoStatus.Status = status;
 	pIrp->IoStatus.Information = info;
 
-	// Если выполнение запроса было долговременным, 
-	// дадим прирост вызывающему потоку
+	// If IRP handling took long, give priority boost to calling thread
 	if(needs_boost) 
 		boost = IO_CD_ROM_INCREMENT;
 
-	// Завершаем IRP
+	// complete IRP
 	IoCompleteRequest(pIrp, boost);
 	return status;
 }				
@@ -146,48 +143,48 @@ VOID ReleaseIrp(IN OUT PIRP pIrp)
 //
 NTSTATUS SaveBufferToIrp(IN OUT PIRP pIrp, IN PCHAR SourceBuffer, IN ULONG Length)
 {
-	PMDL		pMdl, pNextMdl;			// Указатели на MDL
-	PCHAR		MdlBuffer;				// Указатель на буфер из элемента MDL
-	ULONG		PartLength;				// Длина элемента MDL
-	ULONG		LengthProcessed;		// Счетчик скопированной информации
+	PMDL		pMdl, pNextMdl;			// pointers to MDLs
+	PCHAR		MdlBuffer;				// pointer to MDL buffer
+	ULONG		PartLength;				// MDL element length
+	ULONG		LengthProcessed;		// Copied data counter
 
 	if(pIrp->MdlAddress)
-	// Если используется DIRECT_IO
+	// if DIRECT_IO is used
 	{
 		pMdl = pIrp->MdlAddress;
 		LengthProcessed = 0;
 
 		while(pMdl)
-		// Проходим по всем элементам MDL
+		// enumerate all MDL elements
 		{
-			// Получаем указатель на буфер, описанный в текущем элементе
+			// get pointer to buffer of current elements
 			MdlBuffer = MmGetSystemAddressForMdlSafe(pMdl, HighPagePriority);
 			if(!MdlBuffer)
 				return STATUS_INSUFFICIENT_RESOURCES;
 
-			// Получаем длину буфера
+			// get buffer length
 			PartLength = MmGetMdlByteCount(pMdl);
-			// Устанавливаем указатель на следующий элемент MDL
+			// set pointer to next MDL
 			pNextMdl = pMdl->Next;
 
-			// Если текущий кусок последний и не нужен нам целиком,
-			// устанавливаем длину нужной части
+			// if current part is final and we don't need the whole data,
+			// set necessary part length
 			if (LengthProcessed + PartLength > Length) 
 				PartLength = Length - LengthProcessed;
 
-			// Копируем часть исходного буфера в элемент MDL
+			// copy from source buffer to MDL element
 			RtlCopyMemory(MdlBuffer, SourceBuffer + LengthProcessed, PartLength);
 
 			LengthProcessed += PartLength;
 
-			// Переходим к следующему элемену
+			// go to next element
 			pMdl = pNextMdl;
 		}
 
 		return STATUS_SUCCESS;
 	}
 	else
-	// Если используется BUFFERED_IO
+	// if BUFFERED_IO is used
 	{
 		if(!pIrp->AssociatedIrp.SystemBuffer)
 			return STATUS_UNSUCCESSFUL;

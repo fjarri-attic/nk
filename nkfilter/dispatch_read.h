@@ -1,5 +1,5 @@
 //
-// Обработка IRP_MJ_READ
+// IRP_MJ_READ handling
 //
 
 #ifndef _DISPATCH_READ_H

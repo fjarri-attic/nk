@@ -232,7 +232,7 @@ VOID FreeIrp(PIRP pIrp)
 {
     PIO_STACK_LOCATION pStack = IoGetNextIrpStackLocation(pIrp);
 
-//	Похоже, что эту память очищает система; надо позже разобраться
+//	TODO: Seems that this memory is cleaned by OS; needs investigation
 //	Free(pStack->Parameters.Scsi.Srb);
 	
 //	ReleaseIrp(pIrp);

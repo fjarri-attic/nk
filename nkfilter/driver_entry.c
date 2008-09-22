@@ -1,10 +1,10 @@
-// 
-// Точка входа в драйвер
+//
+// Driver entry point
 // 
 
 #include "driver_entry.h"
 
-// Путь в реестре к данным о драйвере 
+// registry path to driver data
 UNICODE_STRING RegistryPath;
 
 // 
@@ -12,20 +12,20 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT pDriverObject, IN PUNICODE_STRING pRegist
 {
 	ULONG index;
 
-	// Устанавливаем в качестве обработчика всех IRP дефолтную функцию 
+	// set default handler to all IRPs
     for (index = 0; index <= IRP_MJ_MAXIMUM_FUNCTION; index++) 
         pDriverObject->MajorFunction[index] = PassIrp;
     
-	// Для нужных нам IRP устанавливаем свои обработчики
+	// set specific handlers
 	pDriverObject->MajorFunction[IRP_MJ_POWER]			= DispatchPower;
 	pDriverObject->MajorFunction[IRP_MJ_PNP]			= DispatchPnP;
 	pDriverObject->MajorFunction[IRP_MJ_SCSI]			= DispatchScsi;
 	
-	// Обработчики AddDevice и Unload
+	// device addition and driver unload handlers
 	pDriverObject->DriverExtension->AddDevice	= AddDevice;
 	pDriverObject->DriverUnload					= DriverUnload;
 
-	// Запоминаем переданный нам ключ реестра
+	// remember registry key
 	RegistryPath.MaximumLength = pRegistryPath->Length + sizeof(UNICODE_NULL);
 	RegistryPath.Buffer = ExAllocatePool(PagedPool,	RegistryPath.MaximumLength);
 	if (RegistryPath.Buffer != NULL)

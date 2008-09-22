@@ -1,5 +1,5 @@
 //
-// Обработка IRP_MJ_READ
+// IRP_MJ_READ handling
 //
 
 #include "dispatch_read.h"
@@ -205,26 +205,25 @@ VOID CreateSptiReadRequest(SCSI_PASS_THROUGH *spt, ULONG StartSector, ULONG Sect
 	RtlZeroMemory(spt, sizeof(SCSI_PASS_THROUGH));
 
 	spt->Length              = sizeof(SCSI_PASS_THROUGH);
-	spt->CdbLength           = 12;							// длина CDB пакета
-	spt->DataIn              = SCSI_IOCTL_DATA_IN;			// мы будем читать
-	//	spt->DataTransferLength  = (RAW_SECTOR_LENGTH + ECC_LENGTH) * SectorCount;	// сколько мы будем читать
+	spt->CdbLength           = 12;							// CDB packet length
+	spt->DataIn              = SCSI_IOCTL_DATA_IN;			// we will read
+	//	spt->DataTransferLength  = (RAW_SECTOR_LENGTH + ECC_LENGTH) * SectorCount;	// bytes to read
 	spt->DataTransferLength  = SECTOR_LENGTH * SectorCount;
 	spt->SenseInfoLength     = 0;
-	spt->TimeOutValue        = 1;							// время выхода по TimeOut
+	spt->TimeOutValue        = 1;							// time to wait for operation to finish
 	spt->DataBufferOffset    = sizeof(SCSI_PASS_THROUGH);
 	spt->SenseInfoOffset     = 0;								
 
 	// Заполняем CDB
 	spt->Cdb[0]              =  0xBE;						// (SPTI READ_CD)
 
-	// номер первого сектора для чтения, причем сначала передается старший
-	// байт старшего слова, а потом младший байт младшего слова
+	// number of the first sector to be read
 	spt->Cdb[2]              = HIBYTE(HIWORD(StartSector));
 	spt->Cdb[3]              = LOBYTE(HIWORD(StartSector));
 	spt->Cdb[4]              = HIBYTE(LOWORD(StartSector));
 	spt->Cdb[5]              = LOBYTE(LOWORD(StartSector));
 
-	// количество секторов для чтения
+	// number of sectors to read
 	spt->Cdb[6]              = LOBYTE(HIWORD(SectorCount));
 	spt->Cdb[7]              = HIBYTE(LOWORD(SectorCount));
 	spt->Cdb[8]              = LOBYTE(LOWORD(SectorCount));
@@ -246,17 +245,16 @@ VOID CreateSrb(PSCSI_REQUEST_BLOCK pSrb, ULONG StartSector, ULONG SectorCount, P
 	pSrb->TimeOutValue = 1;
 	pSrb->OriginalRequest = pIrp;
 
-	// Заполняем CDB
+	// fill CDB
 	pSrb->Cdb[0]              =  0xBE;						// (SPTI READ_CD)
 
-	// номер первого сектора для чтения, причем сначала передается старший
-	// байт старшего слова, а потом младший байт младшего слова
+	// number of the first sector to be read
 	pSrb->Cdb[2]              = HIBYTE(HIWORD(StartSector));
 	pSrb->Cdb[3]              = LOBYTE(HIWORD(StartSector));
 	pSrb->Cdb[4]              = HIBYTE(LOWORD(StartSector));
 	pSrb->Cdb[5]              = LOBYTE(LOWORD(StartSector));
 
-	// количество секторов для чтения
+	// number of sectors to read
 	pSrb->Cdb[6]              = LOBYTE(HIWORD(SectorCount));
 	pSrb->Cdb[7]              = HIBYTE(LOWORD(SectorCount));
 	pSrb->Cdb[8]              = LOBYTE(LOWORD(SectorCount));

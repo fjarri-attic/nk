@@ -1,5 +1,5 @@
 //
-// Точка входа в драйвер
+// Driver entry point
 // 
 
 #ifndef _DRIVER_ENTRY_H
@@ -10,10 +10,10 @@
 #include "dispatch_scsi.h"
 #include "misc.h"
 
-// Точка входа в драйвер
+// Entry point
 NTSTATUS	DriverEntry		(IN PDRIVER_OBJECT pDriverObject, IN PUNICODE_STRING pRegistryPath);
 
-// Функция, вызываемая при выгрузке драйвера
+// Driver unload function
 VOID		DriverUnload	(IN PDRIVER_OBJECT pDriverObject);
 
 #endif

@@ -1,5 +1,5 @@
 //
-// Обработка Plug'n'Play запросов
+// Plug'n'Play requests processing
 //
 
 #ifndef _DISPATCH_PNP_H
@@ -8,17 +8,17 @@
 #include <wdm.h>
 #include "misc.h"
 
-// Инициализация нового устройства
+// Initialize new device
 NTSTATUS AddDevice		(IN PDRIVER_OBJECT pDriverObject, 
 						 IN PDEVICE_OBJECT pPhysicalDeviceObject);
 
-// Удаление устройства
+// Device removal handler
 VOID	RemoveDevice	(IN PDEVICE_OBJECT pDeviceObject);
 
-// Обработка IRP_MJ_PNP
+// IRP_MJ_PNP handler
 NTSTATUS DispatchPnP	(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp);
 
-// Функции завершения для различных минорных кодов IRP_MJ_PNP
+// IRP_MJ_PNP completion functions
 NTSTATUS UsageNotificationCompletion(PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID context);
 NTSTATUS StartDeviceCompletion		(PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID context);
 
