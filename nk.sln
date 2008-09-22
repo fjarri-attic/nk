@@ -4,8 +4,14 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nkcodec", "nkcodec\nkcodec.vcproj", "{64907CEE-4C46-446D-A72D-3B8307164263}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nkcontrol", "nkcontrol\nkcontrol.vcproj", "{1CEEB3D6-5B0C-48A0-984D-0E263B838F0F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{64907CEE-4C46-446D-A72D-3B8307164263} = {64907CEE-4C46-446D-A72D-3B8307164263}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nkfilter", "nkfilter\nkfilter.vcproj", "{07BFD60E-C989-429B-A8D8-798EA3228CD5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{64907CEE-4C46-446D-A72D-3B8307164263} = {64907CEE-4C46-446D-A72D-3B8307164263}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{626D932B-98CF-4AEE-BF0E-AE9847D3A77C}"
 	ProjectSection(SolutionItems) = preProject
