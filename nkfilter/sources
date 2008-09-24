@@ -4,5 +4,5 @@ TARGETTYPE=DRIVER
 DRIVERTYPE=WDM
 
 TARGETLIBS=..\shared\nkcodec.lib
-INCLUDES=..\shared
+INCLUDES=..\shared; $(DDK_INC_PATH)
 SOURCES=driver_entry.c dispatch_pnp.c misc.c dispatch_scsi.c

@@ -3,8 +3,8 @@
 
 #include <wdm.h>
 #include <ntddscsi.h>
-#include <E:\winddk\inc\ddk\wnet\srb.h>
-#include <E:\winddk\inc\ddk\wnet\scsi.h>
+#include <srb.h>
+#include <scsi.h>
 
 #include "misc.h"
 #include "nkcodec.h"
