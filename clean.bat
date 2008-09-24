@@ -9,15 +9,6 @@ del /F /Q build*.err
 del /F /Q build*.wrn
 cd ..
 
-echo *** Cleaning nkformatting ***
-
-cd nkformatting
-rmdir /S /Q objchk_wnet_x86
-del /F /Q build*.log
-del /F /Q build*.err
-del /F /Q build*.wrn
-cd ..
-
 echo *** Cleaning nkfilter ***
 
 cd nkfilter
