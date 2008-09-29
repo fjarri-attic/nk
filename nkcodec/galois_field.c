@@ -1,7 +1,7 @@
 // ----------------------------------------------------
 // Galois field operations (for GF(2^8))
 // ----------------------------------------------------
-#include "galua_field.h"
+#include "galois_field.h"
 
 // Precreated multiplication/division tables
 

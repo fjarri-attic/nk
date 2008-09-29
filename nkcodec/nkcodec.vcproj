@@ -151,7 +151,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\galua_field.c"
+				RelativePath=".\galois_field.c"
 				>
 			</File>
 			<File
@@ -177,7 +177,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\galua_field.h"
+				RelativePath=".\galois_field.h"
 				>
 			</File>
 			<File

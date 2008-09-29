@@ -2,4 +2,4 @@ TARGETNAME=nkcodec
 TARGETPATH=obj
 TARGETTYPE=LIBRARY
 
-SOURCES=nk_codec.c matrices.c galua_field.c formatting.c
+SOURCES=nk_codec.c matrices.c galois_field.c formatting.c
