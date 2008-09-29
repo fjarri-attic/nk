@@ -2,7 +2,7 @@
 // Encoding and decoding functions
 // -------------------------------
 
-#include "galua_field.h"
+#include "galois_field.h"
 #include "matrices.h"
 #include "nk_codec.h"
 

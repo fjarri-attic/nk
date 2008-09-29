@@ -1,4 +1,4 @@
-#include "galua_field.h"
+#include "galois_field.h"
 #include "matrices.h"
 
 //
