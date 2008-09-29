@@ -19,7 +19,7 @@ VOID GFCreateAssemblingMatrix(OUT UCHAR *res, OUT UCHAR *temp, IN const UCHAR *p
 // parts_numbers - has size (k) and contains numbers of slices
 // assemble_matrix - created with the same parts_numbers
 // !!! part_length must be multiple of k !!
-VOID GFAssembleSlices(	OUT UCHAR *res, IN UCHAR *src, ULONG part_length, UCHAR k, 
+VOID GFAssembleSlices(	OUT UCHAR *res, IN UCHAR *src, ULONG part_length, UCHAR k,
 						IN UCHAR *parts_numbers, IN UCHAR *assemble_matrix );
 
 #define SECTOR_LEN 2048
@@ -54,7 +54,7 @@ VOID CreateFormatting(OUT PFORMATTING formatting, UCHAR n, UCHAR k);
 ULONG GetBaseOffset(PFORMATTING params, ULONG BlockNumber);
 ULONG GetBackupOffset(PFORMATTING params, ULONG BlockNumber, UCHAR BackupNumber);
 ULONG GetNumberOfBlocksToRead(ULONG StartingSector, ULONG SectorsNum, UCHAR k);
-VOID FillBlocksToRead(PENCODED_BLOCK pToRead, ULONG StartingSector, 
+VOID FillBlocksToRead(PENCODED_BLOCK pToRead, ULONG StartingSector,
 					  ULONG SectorsNum, UCHAR n, UCHAR k);
 
 #endif

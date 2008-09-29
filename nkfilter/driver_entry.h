@@ -1,6 +1,6 @@
 //
 // Driver entry point
-// 
+//
 
 #ifndef _DRIVER_ENTRY_H
 #define _DRIVER_ENTRY_H

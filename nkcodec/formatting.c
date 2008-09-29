@@ -35,10 +35,10 @@ ULONG GetBackupOffset(PFORMATTING params, ULONG BlockNumber, UCHAR BackupNumber)
 	BaseZoneNumber = BlockNumber / params->BlocksInBaseArea;
 	Theta = BackupNumber < BaseZoneNumber ? 0 : 1;
 
-	return	(BackupNumber + Theta) * params->SectorsInZone + 
+	return	(BackupNumber + Theta) * params->SectorsInZone +
 			params->SectorsInBaseArea +
-			BlockNumber - 
-			(1 - Theta) * params->BlocksInBaseArea;    
+			BlockNumber -
+			(1 - Theta) * params->BlocksInBaseArea;
 }
 
 //
@@ -63,7 +63,7 @@ ULONG GetNumberOfBlocksToRead(ULONG StartingSector, ULONG SectorsNum, UCHAR k)
 }
 
 //
-VOID FillBlocksToRead(PENCODED_BLOCK pToRead, ULONG StartingSector, 
+VOID FillBlocksToRead(PENCODED_BLOCK pToRead, ULONG StartingSector,
 					  ULONG SectorsNum, UCHAR n, UCHAR k)
 {
 	FORMATTING formatting;
@@ -96,7 +96,7 @@ VOID FillBlocksToRead(PENCODED_BLOCK pToRead, ULONG StartingSector,
 		{
             pBlock->Length = ByteLength;
 			ByteLength = 0;
-		}       
+		}
 
 		CurrentBlock++;
 		ByteOffset = CurrentBlock * RAW_LEN * k;

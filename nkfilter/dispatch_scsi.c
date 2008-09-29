@@ -16,7 +16,7 @@ NTSTATUS DispatchScsi (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 	if(pSrb->Function == SRB_FUNCTION_EXECUTE_SCSI
 		&& pCdb->CDB10.OperationCode == SCSIOP_READ_TOC)
 	{
-		IoCopyCurrentIrpStackLocationToNext(pIrp); 
+		IoCopyCurrentIrpStackLocationToNext(pIrp);
 		IoSetCompletionRoutine(pIrp, ModifyToc, NULL, TRUE, TRUE, TRUE);
 		return IoCallDriver(pDeviceExtension->pNextDeviceObject, pIrp);
 	}
@@ -37,7 +37,7 @@ NTSTATUS DispatchScsi (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 							((ULONG)(pCdb->CDB10.TransferBlocksMsb) << 8);
 
 		BlocksToRead = GetNumberOfBlocksToRead(StartingSector, SectorsNum, 12);
-			
+
 		pRead = Allocate(sizeof(READ_REQUEST) + BlocksToRead * sizeof(ENCODED_BLOCK));
 		RtlZeroMemory(pRead, sizeof(READ_REQUEST) + BlocksToRead * sizeof(ENCODED_BLOCK));
 
@@ -100,7 +100,7 @@ NTSTATUS ReadCompletion	(PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID conte
 	UCHAR parts_num[255], i;
 	PUCHAR AssemblingMatrix, TempMatrix;
 	PUCHAR DecodeBuffer;
-	
+
 	PSCSI_REQUEST_BLOCK pSrb = IoGetCurrentIrpStackLocation(pNewIrp)->Parameters.Scsi.Srb;
 
 	if(NT_SUCCESS(pNewIrp->IoStatus.Status))
@@ -112,10 +112,10 @@ NTSTATUS ReadCompletion	(PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID conte
 		for(i=1; i<= pRead->k; i++) parts_num[i-1] = i;
 
 		GFCreateAssemblingMatrix(AssemblingMatrix, TempMatrix, parts_num, pRead->k);
-		GFAssembleSlices(DecodeBuffer, pRead->ReadBuffer, 
+		GFAssembleSlices(DecodeBuffer, pRead->ReadBuffer,
 			RAW_LEN, pRead->k, parts_num, AssemblingMatrix);
 
-		RtlCopyMemory(pRead->SourceBuffer + pRead->CurrentLength, 
+		RtlCopyMemory(pRead->SourceBuffer + pRead->CurrentLength,
 			DecodeBuffer + pRead->ToRead[pRead->CurrentBlock].Offset,
 			pRead->ToRead[pRead->CurrentBlock].Length);
 
@@ -128,13 +128,13 @@ NTSTATUS ReadCompletion	(PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID conte
 		pRead->CurrentLength += pRead->ToRead[pRead->CurrentBlock].Length;
 		pRead->CurrentBlock++;
 
-        if(pRead->CurrentBlock < pRead->BlocksNum)		
+        if(pRead->CurrentBlock < pRead->BlocksNum)
 			ReadCurrentBase(pRead);
 		else
 		{
 			pRead->pSourceSrb->SrbStatus = 1;
-            CompleteRequest(pRead->pSourceIrp, STATUS_SUCCESS, 
-				pRead->SectorsNum * SECTOR_LEN, TRUE);            
+            CompleteRequest(pRead->pSourceIrp, STATUS_SUCCESS,
+				pRead->SectorsNum * SECTOR_LEN, TRUE);
 
 			FreeBuffer(NULL, pRead->ReadBufferMdl);
 			FreeIrp(pNewIrp);
@@ -190,7 +190,7 @@ PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount, PREAD_
 
 	pSrb->OriginalRequest = pIrp;
 	pSrb->DataBuffer = pRead->ReadBuffer;
-	
+
 	pSrb->QueueSortKey = StartingSector;
 	pSrb->InternalStatus = StartingSector;
 
@@ -234,7 +234,7 @@ VOID FreeIrp(PIRP pIrp)
 
 //	TODO: Seems that this memory is cleaned by OS; needs investigation
 //	Free(pStack->Parameters.Scsi.Srb);
-	
+
 //	ReleaseIrp(pIrp);
 	IoFreeIrp(pIrp);
 }
@@ -263,7 +263,7 @@ NTSTATUS ModifyToc	(PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID context)
 		MdlBuffer = MmGetSystemAddressForMdlSafe(pMdl, HighPagePriority);
 
 		DbgPrint("!!! Writing fake TOC");
-		MdlBuffer[5] = 0x14;		
+		MdlBuffer[5] = 0x14;
 	}
 
 	return STATUS_SUCCESS;

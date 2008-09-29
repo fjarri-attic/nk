@@ -25,15 +25,15 @@ VOID GFCreateAssemblingMatrix(OUT UCHAR *res, OUT UCHAR *temp, IN const UCHAR *p
 	for(i=0; i<k; i++)
 		for(j=0; j<k; j++)
 			if(j)
-				temp[j*k+i] = GFMul(temp[(j-1)*k+i], parts_numbers[i]); 
+				temp[j*k+i] = GFMul(temp[(j-1)*k+i], parts_numbers[i]);
 			else
 				temp[i] = 1;
 
-	GFInvertM(res, temp, k);  
+	GFInvertM(res, temp, k);
 }
 
 //
-VOID GFAssembleSlices(OUT UCHAR *res, IN UCHAR *src, ULONG part_length, UCHAR k, 
+VOID GFAssembleSlices(OUT UCHAR *res, IN UCHAR *src, ULONG part_length, UCHAR k,
 					  IN UCHAR *parts_numbers, IN UCHAR *assemble_matrix)
 {
 	ULONG i, j;
@@ -47,4 +47,3 @@ VOID GFAssembleSlices(OUT UCHAR *res, IN UCHAR *src, ULONG part_length, UCHAR k,
 		GFMulVM(res + i*k, vec, assemble_matrix, k);
 	}
 }
-

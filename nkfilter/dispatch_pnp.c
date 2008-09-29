@@ -13,7 +13,7 @@ NTSTATUS AddDevice(IN PDRIVER_OBJECT pDriverObject, IN PDEVICE_OBJECT pPhysicalD
 
 	// create device object
 	status = IoCreateDevice(pDriverObject,				// pointer to driver object
-							sizeof(DEVICE_EXTENSION),	// 
+							sizeof(DEVICE_EXTENSION),	//
 							NULL,						// pointer to driver name
 							FILE_DEVICE_CD_ROM,			// device type
 							0,							// device characteristics
@@ -30,8 +30,8 @@ NTSTATUS AddDevice(IN PDRIVER_OBJECT pDriverObject, IN PDEVICE_OBJECT pPhysicalD
 
 	IoInitializeRemoveLock(&pDeviceExtension->RemoveLock, 0, 0, 0);
 
-	pDeviceExtension->pThisDeviceObject = pThisDeviceObject;			
-	pDeviceExtension->pPhysicalDeviceObject = pPhysicalDeviceObject;	 
+	pDeviceExtension->pThisDeviceObject = pThisDeviceObject;
+	pDeviceExtension->pPhysicalDeviceObject = pPhysicalDeviceObject;
 	pDeviceExtension->pDriverObject = pDriverObject;
 
 	// attach our filter to driver stack
@@ -50,7 +50,7 @@ NTSTATUS AddDevice(IN PDRIVER_OBJECT pDriverObject, IN PDEVICE_OBJECT pPhysicalD
 	pThisDeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
 
 	return STATUS_SUCCESS;
-} 
+}
 
 //
 VOID RemoveDevice(IN PDEVICE_OBJECT pDeviceObject)
@@ -92,7 +92,7 @@ NTSTATUS DispatchPnP(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 	{
 		// if our driver is on the top of the stack or parent driver has DO_POWER_PAGABLE,
 		// set this flag too
-		if (!pDeviceObject->AttachedDevice || 
+		if (!pDeviceObject->AttachedDevice ||
 			(pDeviceObject->AttachedDevice->Flags & DO_POWER_PAGABLE))
 			pDeviceObject->Flags |= DO_POWER_PAGABLE;
 
@@ -143,13 +143,13 @@ NTSTATUS DispatchPnP(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 NTSTATUS UsageNotificationCompletion(PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID context)
 {
 	PDEVICE_EXTENSION pDeviceExtension;
-	
+
 	pDeviceExtension = (PDEVICE_EXTENSION)context;
 
 	// If IRP requires further handling, mark it accordingly
 	if (pIrp->PendingReturned)
 		IoMarkIrpPending(pIrp);
-	
+
 	// If child device cleared DO_POWER_PAGABLE, clear it too
 	if (!(pDeviceExtension->pNextDeviceObject->Flags & DO_POWER_PAGABLE))
 		pDeviceObject->Flags &= ~DO_POWER_PAGABLE;
@@ -174,11 +174,9 @@ NTSTATUS StartDeviceCompletion(PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID co
 	// If child device has FILE_REMOVABLE_MEDIA set, set it too
 	if (pDeviceExtension->pNextDeviceObject->Characteristics & FILE_REMOVABLE_MEDIA)
 		pDeviceObject->Characteristics |= FILE_REMOVABLE_MEDIA;
-	
+
 	// release lock, which we acquired in DispatchPnP()
 	IoReleaseRemoveLock(&pDeviceExtension->RemoveLock, pIrp);
 
 	return STATUS_SUCCESS;
 }
-
-

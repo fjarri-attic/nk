@@ -19,7 +19,7 @@ VOID GFMulMV(OUT UCHAR *res, IN UCHAR *a, IN UCHAR *x, IN UCHAR n)
 		res[i] = 0;
 		for(j=0; j<n; j++)
 			res[i] ^= GFMul(a[i*n+j], x[j]);
-	}     
+	}
 }
 
 //
@@ -31,7 +31,7 @@ VOID GFMulVM(OUT UCHAR *res, IN UCHAR *x, IN UCHAR *a, IN UCHAR n)
 		res[i] = 0;
 		for(j=0; j<n; j++)
 			res[i] ^= GFMul(a[j*n+i], x[j]);
-	}     
+	}
 }
 
 //
@@ -56,7 +56,7 @@ VOID GFInvertM(OUT UCHAR *res, IN OUT UCHAR *a, IN UCHAR n)
 	// Fill res with identity matrix
 	for(i=0; i<n; i++)
 		for(j=0; j<n; j++)
-			res[i*n+j] = (i==j) ? 1 : 0; 
+			res[i*n+j] = (i==j) ? 1 : 0;
 
 	// Use Gauss-Jordan method for matrix inversion
 
@@ -97,7 +97,7 @@ VOID GFInvertM(OUT UCHAR *res, IN OUT UCHAR *a, IN UCHAR n)
 					res[j*n+k] ^= GFMul(res[i*n+k], t);
 				}
 			}
-	}   
+	}
 }
 
 //
@@ -107,7 +107,7 @@ VOID GFCreateBasisVector(OUT UCHAR *res, IN UCHAR number, IN UCHAR n)
 
 	for(i=0; i<n; i++)
 		if(i)
-			res[i] = GFMul(res[i-1], number); 
+			res[i] = GFMul(res[i-1], number);
 		else
 			res[i] = 1;
 }

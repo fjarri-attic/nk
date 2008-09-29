@@ -16,4 +16,3 @@ xcopy /Y nkcontrol\objfre_wnet_x86\i386\nkcontrol.exe compiled\*
 xcopy /Y inf\nkfilter.inf compiled\*
 
 echo on
-

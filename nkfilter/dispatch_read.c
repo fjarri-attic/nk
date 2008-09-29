@@ -4,10 +4,10 @@
 
 #include "dispatch_read.h"
 
-#define HIWORD(l) ((USHORT)((ULONG_PTR)(l) >> 16)) 
-#define LOWORD(l) ((USHORT)((ULONG_PTR)(l) & 0xffff)) 
-#define HIBYTE(w) ((UCHAR)((ULONG_PTR)(w) >> 8)) 
-#define LOBYTE(w) ((UCHAR)((ULONG_PTR)(w) & 0xff)) 
+#define HIWORD(l) ((USHORT)((ULONG_PTR)(l) >> 16))
+#define LOWORD(l) ((USHORT)((ULONG_PTR)(l) & 0xffff))
+#define HIBYTE(w) ((UCHAR)((ULONG_PTR)(w) >> 8))
+#define LOBYTE(w) ((UCHAR)((ULONG_PTR)(w) & 0xff))
 
 #define SECTOR_LENGTH 2048
 #define RAW_SECTOR_LENGTH 2352
@@ -71,8 +71,8 @@ NTSTATUS DispatchRead (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 
 			KeInitializeEvent(&event, SynchronizationEvent, FALSE);
 
-			pNewIrp = IoBuildDeviceIoControlRequest(IOCTL_SCSI_PASS_THROUGH, 
-				pDeviceExtension->pNextDeviceObject, pspt, BufferSize, pspt, BufferSize, 
+			pNewIrp = IoBuildDeviceIoControlRequest(IOCTL_SCSI_PASS_THROUGH,
+				pDeviceExtension->pNextDeviceObject, pspt, BufferSize, pspt, BufferSize,
 				TRUE, &event, &status_block);
 
 			if(!pNewIrp)
@@ -87,7 +87,7 @@ NTSTATUS DispatchRead (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 
 			DbgPrint("Before calling\n");
 
-            
+
 //			stack =	IoGetCurrentIrpStackLocation(pNewIrp);
 //			DbgPrint("Stack flags = %X\n", stack->Flags);
 
@@ -101,17 +101,17 @@ NTSTATUS DispatchRead (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 				DbgPrint("Was pending\n");
 			}
 
-			DbgPrint("Passive request: status %X, info %X\n", 
+			DbgPrint("Passive request: status %X, info %X\n",
 				status_block.Status, status_block.Information);
-			DbgPrint("IRP status %X, info %X\n", pNewIrp->IoStatus.Status, 
+			DbgPrint("IRP status %X, info %X\n", pNewIrp->IoStatus.Status,
 				pNewIrp->IoStatus.Information);
 
-//			SaveBufferToIrp(pIrp, (PCHAR)(pspt) + sizeof(SCSI_PASS_THROUGH), 
+//			SaveBufferToIrp(pIrp, (PCHAR)(pspt) + sizeof(SCSI_PASS_THROUGH),
 //				BufferSize - sizeof(SCSI_PASS_THROUGH));
 
 			ExFreePoolWithTag(pspt, POOL_TAG);
 
-//			status = CompleteRequest(pIrp, status_block.Status, status_block.Information - 
+//			status = CompleteRequest(pIrp, status_block.Status, status_block.Information -
 //				sizeof(SCSI_PASS_THROUGH), TRUE);
 
 			IoReleaseRemoveLock(&pDeviceExtension->RemoveLock, pIrp);
@@ -145,10 +145,10 @@ NTSTATUS DispatchRead (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 			pData->pIrp = pIrp;
 			pData->pRemoveLock = &(pDeviceExtension->RemoveLock);
 			pData->pSpt = pspt;
-            
+
 			pNewIrp->MdlAddress = NULL;
 			pNewIrp->AssociatedIrp.SystemBuffer = pspt;
-			
+
 			pNewIrp->UserBuffer = pspt;
 
 			pNewIrp->RequestorMode = KernelMode;
@@ -158,7 +158,7 @@ NTSTATUS DispatchRead (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 			stack->MajorFunction = IRP_MJ_DEVICE_CONTROL;
 			stack->MinorFunction = 0;
 //			stack->DeviceObject = pTarget;
-			
+
 			stack->Parameters.DeviceIoControl.InputBufferLength = BufferSize;
 			stack->Parameters.DeviceIoControl.OutputBufferLength = BufferSize;
 			stack->Parameters.DeviceIoControl.IoControlCode = IOCTL_SCSI_PASS_THROUGH;
@@ -181,7 +181,7 @@ NTSTATUS ReadCompletion (PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID conte
 
 //	__asm int 3;
 
-	DbgPrint("Nonpassive request: status %X, info %X\n", 
+	DbgPrint("Nonpassive request: status %X, info %X\n",
 		pNewIrp->IoStatus.Status, pNewIrp->IoStatus.Information);
 
 	SaveBufferToIrp(pData->pIrp, (PCHAR)(pData->pSpt + 1), pData->Length);
@@ -212,7 +212,7 @@ VOID CreateSptiReadRequest(SCSI_PASS_THROUGH *spt, ULONG StartSector, ULONG Sect
 	spt->SenseInfoLength     = 0;
 	spt->TimeOutValue        = 1;							// time to wait for operation to finish
 	spt->DataBufferOffset    = sizeof(SCSI_PASS_THROUGH);
-	spt->SenseInfoOffset     = 0;								
+	spt->SenseInfoOffset     = 0;
 
 	// Заполняем CDB
 	spt->Cdb[0]              =  0xBE;						// (SPTI READ_CD)

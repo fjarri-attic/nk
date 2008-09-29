@@ -17,5 +17,5 @@ VOID GFCreateAssemblingMatrix(OUT UCHAR *res, OUT UCHAR *temp, IN const UCHAR *p
 // Decoding function
 // src has size length*n, where slices go successively
 // vector_nums has size k with slice numbers
-VOID GFAssembleSlices(OUT UCHAR *res, IN UCHAR *src, ULONG part_length, UCHAR k, 
+VOID GFAssembleSlices(OUT UCHAR *res, IN UCHAR *src, ULONG part_length, UCHAR k,
 					  IN UCHAR *parts_numbers, IN UCHAR *assemble_matrix);

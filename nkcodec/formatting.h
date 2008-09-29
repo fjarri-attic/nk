@@ -36,5 +36,5 @@ VOID CreateFormatting(OUT PFORMATTING formatting, UCHAR n, UCHAR k);
 ULONG GetBaseOffset(PFORMATTING params, ULONG BlockNumber);
 ULONG GetBackupOffset(PFORMATTING params, ULONG BlockNumber, UCHAR BackupNumber);
 ULONG GetNumberOfBlocksToRead(ULONG StartingSector, ULONG SectorsNum, UCHAR k);
-VOID FillBlocksToRead(PENCODED_BLOCK pToRead, ULONG StartingSector, 
+VOID FillBlocksToRead(PENCODED_BLOCK pToRead, ULONG StartingSector,
 					  ULONG SectorsNum, UCHAR n, UCHAR k);

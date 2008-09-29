@@ -21,7 +21,7 @@ ULONG CreateImage(const char *source_path, const char *res_path, UCHAR n, UCHAR 
 
 	ULONG SourceFileBytesNum;
 	ULONG SourceFileBlocksNum, Remainder;
-	
+
 	ULONG j;
 	UCHAR i;
 
@@ -32,7 +32,7 @@ ULONG CreateImage(const char *source_path, const char *res_path, UCHAR n, UCHAR 
 	FORMATTING formatting;
 
 	CreateFormatting(&formatting, n, k);
-	
+
 	printf("Creating empty file...");
 	CreateEmptyFile(res_path, formatting.ZonesNum * formatting.SectorsInZone);
 	printf(" done.\n");

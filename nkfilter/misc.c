@@ -13,27 +13,27 @@ NTSTATUS PassIrp(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 
 	// try to acquire lock
 	status = IoAcquireRemoveLock(&pDeviceExtension->RemoveLock, pIrp);
-    
+
 	// if the device is also removing - complete IRP
 	if (status != STATUS_SUCCESS)
 		return CompleteRequest(pIrp, status, 0, FALSE);
 
 	// pass IRP further
-	IoSkipCurrentIrpStackLocation(pIrp); 
+	IoSkipCurrentIrpStackLocation(pIrp);
 	status = IoCallDriver(pDeviceExtension->pNextDeviceObject, pIrp);
 
 	// release lock
 	IoReleaseRemoveLock(&pDeviceExtension->RemoveLock, pIrp);
 
 	return status;
-} 
+}
 
 //
 NTSTATUS DispatchPower(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 {
 	PDEVICE_EXTENSION pDeviceExtension;
 	NTSTATUS status;
-	
+
 	pDeviceExtension = (PDEVICE_EXTENSION)pDeviceObject->DeviceExtension;
 
 	// tell Power Manager that the driver is ready to handle next IRP_MJ_POWER
@@ -54,24 +54,24 @@ NTSTATUS DispatchPower(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 	IoReleaseRemoveLock(&pDeviceExtension->RemoveLock, pIrp);
 
 	return status;
-} 
+}
 
 //
 NTSTATUS CompleteRequest(IN PIRP pIrp, IN NTSTATUS status, IN ULONG_PTR info, IN BOOLEAN needs_boost)
-{							
+{
 	CCHAR boost = IO_NO_INCREMENT;
 
 	pIrp->IoStatus.Status = status;
 	pIrp->IoStatus.Information = info;
 
 	// If IRP handling took long, give priority boost to calling thread
-	if(needs_boost) 
+	if(needs_boost)
 		boost = IO_CD_ROM_INCREMENT;
 
 	// complete IRP
 	IoCompleteRequest(pIrp, boost);
 	return status;
-}				
+}
 
 //
 NTSTATUS AllocateBuffer(ULONG Length, OUT PCHAR *Address, OUT PMDL *Mdl)
@@ -169,7 +169,7 @@ NTSTATUS SaveBufferToIrp(IN OUT PIRP pIrp, IN PCHAR SourceBuffer, IN ULONG Lengt
 
 			// if current part is final and we don't need the whole data,
 			// set necessary part length
-			if (LengthProcessed + PartLength > Length) 
+			if (LengthProcessed + PartLength > Length)
 				PartLength = Length - LengthProcessed;
 
 			// copy from source buffer to MDL element

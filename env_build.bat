@@ -21,4 +21,3 @@ cd ..
 xcopy /Y inf\nkfilter.inf compiled\*
 
 echo on
-

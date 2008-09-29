@@ -37,12 +37,12 @@ NTSTATUS PassIrp			(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp);
 NTSTATUS DispatchPower		(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp);
 
 // IRP completion with specified parameters
-NTSTATUS CompleteRequest	(IN PIRP pIrp, IN NTSTATUS status, 
+NTSTATUS CompleteRequest	(IN PIRP pIrp, IN NTSTATUS status,
 							 IN ULONG_PTR info, IN BOOLEAN needs_boost);
 
 //
 NTSTATUS AllocateBuffer(ULONG Length, OUT PCHAR *Address, OUT PMDL *Mdl);
-VOID FreeBuffer(PCHAR pBuf, PMDL pMdl);	
+VOID FreeBuffer(PCHAR pBuf, PMDL pMdl);
 
 // Release IRP
 VOID	ReleaseIrp			(IN OUT PIRP pIrp);

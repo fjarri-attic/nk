@@ -21,7 +21,7 @@ LONG __cdecl main(ULONG argc, CHAR *argv[])
 		Args = NULL;
 	ArgNum = argc - 2;
 
-	if(!strcmp(command, "encode")) 
+	if(!strcmp(command, "encode"))
 	{
 		temp_n = atoi(Args[0]);
 		temp_k = atoi(Args[1]);
@@ -60,10 +60,10 @@ LONG __cdecl main(ULONG argc, CHAR *argv[])
 		return TestImage(Args[2], (UCHAR)temp_n, (UCHAR)temp_k);
 	}
 
-	if(!strcmp(command, "install")) 
+	if(!strcmp(command, "install"))
 		return InstallDriver();
 
-	if(!strcmp(command, "uninstall")) 
+	if(!strcmp(command, "uninstall"))
 		return UninstallDriver();
 
 	printf("%s: unknown command. Read help:\n\n", command);

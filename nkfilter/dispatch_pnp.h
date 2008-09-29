@@ -9,7 +9,7 @@
 #include "misc.h"
 
 // Initialize new device
-NTSTATUS AddDevice		(IN PDRIVER_OBJECT pDriverObject, 
+NTSTATUS AddDevice		(IN PDRIVER_OBJECT pDriverObject,
 						 IN PDEVICE_OBJECT pPhysicalDeviceObject);
 
 // Device removal handler
