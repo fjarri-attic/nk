@@ -38,7 +38,8 @@ def walk_callback(arg, dir, file_list):
 	print "In directroy: " + dir
 	for file in file_list:
 		name, ext = os.path.splitext(file)
-		if ext in ['.c', '.cpp', '.h', '.bat', '.inf', '.py'] or \
+		if ext in ['.c', '.cpp', '.h', '.bat', '.inf',
+				'.py', '.cmd', '.vbs'] or \
 				file in ['sources', 'makefile']:
 			trim_file(os.path.join(dir, file))
 
