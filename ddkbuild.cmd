@@ -351,7 +351,7 @@ goto :EOF
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :: Initialize variables specific to the respective platform
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-:: 
+::
 :: Valid parameters for setenv in different DDKs/WDKs:
 ::
 :: 2600       - "setenv <directory> [fre|chk] [64] [hal]"

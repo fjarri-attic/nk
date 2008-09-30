@@ -29,7 +29,7 @@ cd %1
 set archs=x86 x64 ia64
 set wins=wnet wlh
 set blds=chk fre
-for %%a in (%archs%) do for %%w in (%wins%) do for %%b in (%blds%) do rmdir /S /Q obj%%b_%%w_%%a     
+for %%a in (%archs%) do for %%w in (%wins%) do for %%b in (%blds%) do rmdir /S /Q obj%%b_%%w_%%a
 call :CleanLogs
 cd ..
 
