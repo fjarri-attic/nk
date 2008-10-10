@@ -13,17 +13,16 @@ ProcessDir(root_dir)
 Sub TrimFile(file)
 	' Create modified file
 	Set src = fs.OpenTextFile(file, 1)
-	Lines = src.ReadAll
+
+	new_str = ""
+	Do Until src.AtEndOfStream
+		new_str = new_str & RTrim(src.Readline) & vbCrLf
+	Loop
+
 	src.Close
 
-	Set re = New RegExp
-	re.Global = True
-	re.Pattern = "(\s*)(\r\n)"
-
-	Lines = re.Replace( Lines, "$2")
-
-	Set dst = fs.OpenTextFile(file & ".new", 2, 1)
-	dst.Write Lines
+	Set dst = fs.OpenTextFile(file, 2, 1)
+	dst.Write new_str
 	dst.Close
 End Sub
 
