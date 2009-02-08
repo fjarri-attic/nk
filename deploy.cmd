@@ -1,10 +1,10 @@
-set VM="c:\data\vm\Win2k3\Windows Server 2003 Enterprise Edition.vmx"
-set REPODIR=c:\nk
+set VM="d:\vm\Win2k3\Windows Server 2003 Enterprise Edition.vmx"
+set REPODIR=d:\gitrepos\nk
 set BINDIR=%REPODIR%\compiled
 set DEPDIR=c:\nk
 
 :: Load test snapshot
-vmrun revertToSnapshot %VM% ForDeploy
+vmrun revertToSnapshot %VM% ForDeployVirtualDisk
 vmrun start %VM%
 
 :: Create deployment folder
