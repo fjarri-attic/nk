@@ -13,9 +13,16 @@ NTSTATUS DispatchScsi (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 	pSrb = IoGetCurrentIrpStackLocation(pIrp)->Parameters.Scsi.Srb;
 	pCdb = (PCDB)pSrb->Cdb;
 
+	// System tries to identify disk
+	// Using this occasion to get N and K along with read offset
 	if(pSrb->Function == SRB_FUNCTION_EXECUTE_SCSI
 		&& pCdb->CDB10.OperationCode == SCSIOP_READ_TOC)
 	{
+		// Read random sectors of the disk until we get undamaged one
+
+		// Deduce N, K and read offset from the sector's subchannel
+
+		// Read and modify TOC, so that OS thinks that it is a common data CD
 		IoCopyCurrentIrpStackLocationToNext(pIrp);
 		IoSetCompletionRoutine(pIrp, ModifyToc, NULL, TRUE, TRUE, TRUE);
 		return IoCallDriver(pDeviceExtension->pNextDeviceObject, pIrp);
