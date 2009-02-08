@@ -28,6 +28,11 @@ typedef struct _DEVICE_EXTENSION
 	PDRIVER_OBJECT	pDriverObject;			// Pointer to our driver object
 
 	IO_REMOVE_LOCK	RemoveLock;				// Lock for preventing untimely driver unload
+
+	// Parameters of currently inserted disk
+	UCHAR N;
+	UCHAR K;
+	ULONG ReadOffset;
 } DEVICE_EXTENSION, *PDEVICE_EXTENSION;
 
 // Default handler for IRPs
