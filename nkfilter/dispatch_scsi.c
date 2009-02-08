@@ -94,7 +94,8 @@ VOID ReadCurrentBase(PREAD_REQUEST pRead)
 	PIRP pNewIrp;
 
 	pNewIrp = CreateIrp(pRead->StackSize, pRead->ToRead[pRead->CurrentBlock].BaseParts,
-		pRead->ToRead[pRead->CurrentBlock].k, pRead);
+		pRead->ToRead[pRead->CurrentBlock].k, pRead->ReadBufferMdl, pRead->ReadBuffer,
+		TRUE, FALSE);
 
 	IoSetCompletionRoutine(pNewIrp, ReadCompletion, pRead, TRUE, TRUE, TRUE);
     IoCallDriver(pRead->pNextDevice, pNewIrp);
@@ -161,21 +162,25 @@ NTSTATUS ReadCompletion	(PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID conte
 }
 
 //
-PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount, PREAD_REQUEST pRead)
+PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount,
+	PMDL read_buffer_mdl, PCHAR read_buffer, BOOLEAN get_data, BOOLEAN get_subchannels)
 {
 	PIRP pIrp;
 	PSCSI_REQUEST_BLOCK pSrb;
 	PCDB pCdb;
 	PIO_STACK_LOCATION pStack;
-	ULONG SECTOR = 2352;// + 296;
+	ULONG SECTOR = (get_data ? (RAW_LEN + ECC_LEN + 2) : 0) +
+		(get_subchannels ? SUBCHANNELS_LEN : 0);
 
 	pIrp = IoAllocateIrp(StackSize, FALSE);
 
-//
-	pIrp->RequestorMode = KernelMode;
-	pIrp->MdlAddress = pRead->ReadBufferMdl;
+	// Fill IRP parameters
 
-//
+	pIrp->RequestorMode = KernelMode;
+	pIrp->MdlAddress = read_buffer_mdl;
+
+	// Fill stack data
+
 	pStack = IoGetNextIrpStackLocation(pIrp);
 
 	pStack->Parameters.Scsi.Srb = Allocate(sizeof(SCSI_REQUEST_BLOCK));
@@ -184,7 +189,8 @@ PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount, PREAD_
 	pStack->MajorFunction = IRP_MJ_SCSI;
 	pStack->Flags = SL_OVERRIDE_VERIFY_VOLUME;
 
-//
+	// Fill SRB
+
 	pSrb = pStack->Parameters.Scsi.Srb;
 
 	pSrb->Length = sizeof(SCSI_REQUEST_BLOCK);
@@ -196,19 +202,23 @@ PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount, PREAD_
 	pSrb->TimeOutValue = 1;
 
 	pSrb->OriginalRequest = pIrp;
-	pSrb->DataBuffer = pRead->ReadBuffer;
+	pSrb->DataBuffer = read_buffer;
 
 	pSrb->QueueSortKey = StartingSector;
 	pSrb->InternalStatus = StartingSector;
 
-//
+	// Fill CDB
+
 	pCdb = (PCDB)pSrb->Cdb;
 
-	pCdb->READ_CD.OperationCode = 0xBE;
+	// SCSI command
+	pCdb->READ_CD.OperationCode = SCSIOP_READ_CD;
 
+	// Number of sectors to read
 	pCdb->READ_CD.TransferBlocks[1] = HIBYTE(LOWORD(SectorsCount));
 	pCdb->READ_CD.TransferBlocks[2] = LOBYTE(LOWORD(SectorsCount));
 
+	// Starting sector number
 	pCdb->READ_CD.StartingLBA[0] = HIBYTE(HIWORD(StartingSector));
 	pCdb->READ_CD.StartingLBA[1] = LOBYTE(HIWORD(StartingSector));
 	pCdb->READ_CD.StartingLBA[2] = HIBYTE(LOWORD(StartingSector));
@@ -216,10 +226,15 @@ PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount, PREAD_
 
 	// On Audio CDs it is the only option,
 	// since the whole 2352 bytes are the user data
-	pCdb->READ_CD.IncludeUserData = 1;
+	pCdb->READ_CD.IncludeUserData = (get_data ? 1 : 0);
 
-	pCdb->READ_CD.ErrorFlags = 2; // 294 bytes of C2 + 2 error bytes
-	//pCdb->READ_CD.SubChannelSelection = 4; // Raw P-W subchannel data (96 bytes)
+	// '2' means block error byte + 1 pad byte + 294 bytes of C2 error codes
+	// 'block error byte' is all C2 codes 'and'ed
+	pCdb->READ_CD.ErrorFlags = (get_data ? 2 : 0);
+
+	// '4' means raw P-W subchannel data (96 bytes)
+	// Note: R-W channels are interleaved
+	pCdb->READ_CD.SubChannelSelection = (get_subchannels ? 4 : 0);
 
     return pIrp;
 }

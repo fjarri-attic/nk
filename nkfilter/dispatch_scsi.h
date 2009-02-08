@@ -43,7 +43,8 @@ NTSTATUS DispatchScsi (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp);
 NTSTATUS ReadCompletion	(PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID context);
 NTSTATUS ModifyToc	(PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID context);
 VOID ReadCurrentBase(PREAD_REQUEST pRead);
-PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount, PREAD_REQUEST pRead);
+PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount,
+			   PMDL read_buffer_mdl, PCHAR read_buffer, BOOLEAN get_data, BOOLEAN get_subchannels);
 VOID FreeIrp(PIRP pIrp);
 
 #endif
