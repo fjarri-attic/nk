@@ -196,7 +196,7 @@ PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount, PREAD_
 
 //
 	pCdb = (PCDB)pSrb->Cdb;
-/*
+
 	pCdb->READ_CD.OperationCode = 0xBE;
 
 	pCdb->READ_CD.TransferBlocks[1] = HIBYTE(LOWORD(SectorsCount));
@@ -207,23 +207,12 @@ PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount, PREAD_
 	pCdb->READ_CD.StartingLBA[2] = HIBYTE(LOWORD(StartingSector));
 	pCdb->READ_CD.StartingLBA[3] = LOBYTE(LOWORD(StartingSector));
 
-	pCdb->READ_CD.IncludeSyncData = 1;
-	pCdb->READ_CD.HeaderCode = 3;
-	pCdb->READ_CD.IncludeEDC = 1;
+	// On Audio CDs it is the only option,
+	// since the whole 2352 bytes are the user data
 	pCdb->READ_CD.IncludeUserData = 1;
-*/
-	pCdb->AsByte[0] = 0xBE;
 
-	pCdb->AsByte[2] = HIBYTE(HIWORD(StartingSector));
-	pCdb->AsByte[3] = LOBYTE(HIWORD(StartingSector));
-	pCdb->AsByte[4] = HIBYTE(LOWORD(StartingSector));
-	pCdb->AsByte[5] = LOBYTE(LOWORD(StartingSector));
-
-	pCdb->AsByte[6] = LOBYTE(HIWORD(SectorsCount));
-	pCdb->AsByte[7] = HIBYTE(LOWORD(SectorsCount));
-	pCdb->AsByte[8] = LOBYTE(LOWORD(SectorsCount));
-
-	pCdb->AsByte[9] = 0xF8;
+	pCdb->READ_CD.ErrorFlags = 2; // 294 bytes of C2 + 2 error bytes
+	//pCdb->READ_CD.SubChannelSelection = 4; // Raw P-W subchannel data (96 bytes)
 
     return pIrp;
 }
@@ -262,7 +251,7 @@ NTSTATUS ModifyToc	(PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID context)
 		MmProbeAndLockPages(pMdl, KernelMode, IoModifyAccess);
 		MdlBuffer = MmGetSystemAddressForMdlSafe(pMdl, HighPagePriority);
 
-		DbgPrint("!!! Writing fake TOC");
+		DbgPrint("Writing fake TOC\n");
 		MdlBuffer[5] = 0x14;
 	}
 
