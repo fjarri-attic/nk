@@ -2,6 +2,7 @@
 // Data structures and auxiliary functions
 //
 #include "misc.h"
+#include "nkcodec.h"
 
 //
 NTSTATUS PassIrp(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
@@ -193,4 +194,33 @@ NTSTATUS SaveBufferToIrp(IN OUT PIRP pIrp, IN PCHAR SourceBuffer, IN ULONG Lengt
 
 		return STATUS_SUCCESS;
 	}
+}
+
+
+// The function is inplace!
+VOID DecodeSubchannelData(UCHAR *subchannel_data)
+{
+	int subchannel, j;
+	UCHAR buf[SUBCHANNELS_LEN];
+	UCHAR bit;
+	
+	RtlZeroMemory(buf, ARRAYSIZE(buf));
+
+	// Only P and Q subchannels are present in raw subchannel data as is.
+	// R-W subchannels should be deinterleaved after extraction.
+	// Since at the moment we need just P and Q, we drop R-W subchannel data.
+
+	// for each byte of raw data
+	for(j = 0; j < ARRAYSIZE(buf); j++)
+		for(subchannel = 0; subchannel < 2; subchannel++)
+		{
+			// extract subchannel bit
+			bit = ((subchannel_data[j] & (1 << (7 - subchannel))) == 0 ? 0 : 1);
+
+			// save it to a proper place in decoded data
+			buf[subchannel * ARRAYSIZE(buf) / 8 + j / 8] |= (bit << (7 - j % 8));
+		}
+
+	// save decode data in place of raw data
+	RtlCopyMemory(subchannel_data, buf, ARRAYSIZE(buf));
 }

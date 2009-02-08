@@ -24,7 +24,8 @@ VOID GFAssembleSlices(	OUT UCHAR *res, IN UCHAR *src, ULONG part_length, UCHAR k
 
 #define SECTOR_LEN 2048
 #define RAW_LEN 2352
-#define ECC_LEN (RAW_LEN/8)
+#define ECC_LEN (RAW_LEN / 8)
+#define SUBCHANNELS_LEN 96
 #define SECTORS_ON_CD 350000
 
 typedef struct _FORMATTING

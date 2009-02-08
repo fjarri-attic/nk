@@ -50,4 +50,7 @@ VOID	ReleaseIrp			(IN OUT PIRP pIrp);
 // Save buffer to IRP
 NTSTATUS SaveBufferToIrp	(IN OUT PIRP pIrp, IN PCHAR SourceBuffer, IN ULONG Length);
 
+// Decode subchannel data
+VOID DecodeSubchannelData(UCHAR *subchannel_data);
+
 #endif
