@@ -39,9 +39,25 @@ typedef struct _READ_REQUEST
 	ULONG CurrentLength;
 } READ_REQUEST, *PREAD_REQUEST;
 
+typedef struct _DETECTION_REQUEST
+{
+	PIRP pSourceIrp;
+	PDEVICE_OBJECT pNextDevice;
+
+	PCHAR ReadBuffer;
+	PMDL ReadBufferMdl;
+
+	ULONG AttemptCounter;
+	ULONG MaxAttempts;
+
+	UCHAR N;
+	UCHAR K;
+	UCHAR ReadOffset;
+} DETECTION_REQUEST, *PDETECTION_REQUEST;
+
 NTSTATUS DispatchScsi (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp);
 NTSTATUS ReadCompletion	(PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID context);
-NTSTATUS ModifyToc	(PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID context);
+NTSTATUS DetectionCompletion(PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID context);
 VOID ReadCurrentBase(PREAD_REQUEST pRead);
 PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount,
 			   PMDL read_buffer_mdl, PCHAR read_buffer, BOOLEAN get_data, BOOLEAN get_subchannels);

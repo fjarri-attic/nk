@@ -24,7 +24,7 @@ NTSTATUS DispatchScsi (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 
 		// Read and modify TOC, so that OS thinks that it is a common data CD
 		IoCopyCurrentIrpStackLocationToNext(pIrp);
-		IoSetCompletionRoutine(pIrp, ModifyToc, NULL, TRUE, TRUE, TRUE);
+		IoSetCompletionRoutine(pIrp, DetectionCompletion, NULL, TRUE, TRUE, TRUE);
 		return IoCallDriver(pDeviceExtension->pNextDeviceObject, pIrp);
 	}
 
@@ -110,6 +110,8 @@ NTSTATUS ReadCompletion	(PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID conte
 	PUCHAR DecodeBuffer;
 
 	PSCSI_REQUEST_BLOCK pSrb = IoGetCurrentIrpStackLocation(pNewIrp)->Parameters.Scsi.Srb;
+
+	__asm int 3;
 
 	if(NT_SUCCESS(pNewIrp->IoStatus.Status))
 	{
@@ -251,31 +253,47 @@ VOID FreeIrp(PIRP pIrp)
 }
 
 //
-NTSTATUS ModifyToc	(PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID context)
+NTSTATUS DetectionCompletion(PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID context)
 {
 	PSCSI_REQUEST_BLOCK pSrb;
 	PCDB pCdb;
 	PMDL pMdl;
 	PUCHAR MdlBuffer;
+	PDEVICE_EXTENSION pDeviceExtension;
 
 	pSrb = IoGetCurrentIrpStackLocation(pIrp)->Parameters.Scsi.Srb;
 	pCdb = (PCDB)pSrb->Cdb;
+
+	// Return immediately on errors
+	if(!pIrp->MdlAddress)
+	{
+		pIrp->IoStatus.Status = STATUS_UNSUCCESSFUL;
+		return STATUS_SUCCESS;
+	}
 
 	if(!NT_SUCCESS(pIrp->IoStatus.Status))
 	{
 		return STATUS_SUCCESS;
 	}
+	
+	// TODO: check if this is a real audio CD
+	// Now assume that all disks are (n,k)-formatted
+	pMdl = pIrp->MdlAddress;
 
-	if(pIrp->MdlAddress)
-	{
-		pMdl = pIrp->MdlAddress;
+	MmProbeAndLockPages(pMdl, KernelMode, IoModifyAccess);
+	MdlBuffer = MmGetSystemAddressForMdlSafe(pMdl, HighPagePriority);
 
-		MmProbeAndLockPages(pMdl, KernelMode, IoModifyAccess);
-		MdlBuffer = MmGetSystemAddressForMdlSafe(pMdl, HighPagePriority);
+	DbgPrint("Writing fake TOC\n");
+	MdlBuffer[5] = 0x14;
 
-		DbgPrint("Writing fake TOC\n");
-		MdlBuffer[5] = 0x14;
-	}
+	// Clean N, K and ReadOffset
+	// TODO: investigate the situation what will occur, if they will be in use
+	// (and whether it can happen or not in reality)
+	pDeviceExtension = ((PDEVICE_EXTENSION)(pDeviceObject->DeviceExtension));
+	pDeviceExtension->K = 0;
+	pDeviceExtension->N = 0;
+	pDeviceExtension->ReadOffset = 0;
+	pDeviceExtension->pDriverObject->MajorFunction[IRP_MJ_SCSI] = DispatchScsi;
 
 	return STATUS_SUCCESS;
 }
