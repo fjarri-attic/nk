@@ -47,6 +47,7 @@ typedef struct _DETECTION_REQUEST
 	PCHAR ReadBuffer;
 	PMDL ReadBufferMdl;
 
+	ULONG CurrentSector;
 	ULONG AttemptCounter;
 	ULONG MaxAttempts;
 
@@ -63,5 +64,8 @@ PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount,
 			   PMDL read_buffer_mdl, PCHAR read_buffer, BOOLEAN get_data, BOOLEAN get_subchannels);
 VOID FreeIrp(PIRP pIrp);
 VOID StartReading(PDEVICE_OBJECT pDeviceObject, PIRP pIrp);
+NTSTATUS DeductionCompletion(PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID context);
+VOID StartDeduction(PDEVICE_OBJECT pDeviceObject, PIRP pIrp);
+VOID ReadNextSector(PDETECTION_REQUEST pRequest);
 
 #endif

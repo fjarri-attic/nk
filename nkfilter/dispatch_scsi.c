@@ -256,6 +256,106 @@ VOID FreeIrp(PIRP pIrp)
 }
 
 //
+VOID StartDeduction(PDEVICE_OBJECT pDeviceObject, PIRP pIrp)
+{
+	PDETECTION_REQUEST pRequest;
+	PIRP pNewIrp;
+	PDEVICE_EXTENSION pDeviceExtension = (PDEVICE_EXTENSION)pDeviceObject->DeviceExtension;
+
+	// Read random sectors of the disk until we get undamaged one
+	// Deduce N, K and read offset from the sector's subchannel
+	pRequest = Allocate(sizeof(*pRequest));
+	RtlZeroMemory(pRequest, sizeof(*pRequest));
+
+	pRequest->pSourceIrp = pIrp;
+	pRequest->pNextDevice = ((PDEVICE_EXTENSION)(pDeviceObject->DeviceExtension))->pNextDeviceObject;
+
+	pRequest->MaxAttempts = 5;
+
+	AllocateBuffer(RAW_LEN + ECC_LEN + 2 + SUBCHANNELS_LEN, &(pRequest->ReadBuffer),
+		&(pRequest->ReadBufferMdl));
+
+	ReadNextSector(pRequest);
+}
+
+
+//
+VOID ReadNextSector(PDETECTION_REQUEST pRequest)
+{
+	PIRP pNewIrp;
+
+	// TODO: generate random sector number each time
+	pRequest->CurrentSector = 10;
+	pNewIrp = CreateIrp(pRequest->pNextDevice->StackSize, pRequest->CurrentSector,
+		1, pRequest->ReadBufferMdl, pRequest->ReadBuffer, TRUE, TRUE);	
+
+	IoSetCompletionRoutine(pNewIrp, DeductionCompletion, pRequest, TRUE, TRUE, TRUE);
+	IoCallDriver(pRequest->pNextDevice, pNewIrp);
+}
+
+
+//
+NTSTATUS DeductionCompletion(PDEVICE_OBJECT pDeviceObject, PIRP pNewIrp, PVOID context)
+{
+	PDETECTION_REQUEST pRequest = (PDETECTION_REQUEST)context;
+	//	PDEVICE_EXTENSION pDeviceExtension = ((PDEVICE_EXTENSION)(pDeviceObject->DeviceExtension));
+	__asm int 3;
+	pRequest->AttemptCounter++;
+	if(NT_SUCCESS(pNewIrp->IoStatus.Status) && pRequest->AttemptCounter < pRequest->MaxAttempts &&
+		pRequest->ReadBuffer[RAW_LEN] == 0)
+	{
+		int i;
+		BOOLEAN first_bit;
+		PCHAR pPSubchannel, pQSubchannel;
+		ULONG sector_num, n, k;
+		ULONG read_offset;
+
+		DecodeSubchannelData(pRequest->ReadBuffer + RAW_LEN + ECC_LEN + 2);
+		pPSubchannel = pRequest->ReadBuffer + RAW_LEN + ECC_LEN + 2;
+		pQSubchannel = pPSubchannel + 12;
+
+		__asm int 3;
+
+		// Find change from ones to zeroes in first 12 bytes
+		first_bit = ((pPSubchannel[0] & (1 << 7)) != 0);
+		for(i = 0; i < SUBCHANNELS_LEN; i++)
+		{
+			if(((pPSubchannel[i / 8] & (1 << (7 - i % 8))) != 0) != first_bit)
+				break;
+		}
+
+		if(i > SUBCHANNELS_LEN / 2)
+		{
+			sector_num = *(PULONG)(pQSubchannel[i - 4]);
+			n = pQSubchannel[i - 5];
+			k = pQSubchannel[i - 6];
+		}
+		else
+		{
+			sector_num = *(PULONG)(pQSubchannel[i]);
+			n = pQSubchannel[i + 5];
+			k = pQSubchannel[i + 4];
+		}
+
+		//	pDeviceExtension->K = (UCHAR)k;
+		//	pDeviceExtension->N = (UCHAR)n;
+
+		StartReading(pDeviceObject, pRequest->pSourceIrp);
+	}
+	else
+	{
+		CompleteRequest(pRequest->pSourceIrp, STATUS_UNSUCCESSFUL, 0, TRUE);
+
+		FreeBuffer(NULL, pRequest->ReadBufferMdl);
+		FreeIrp(pNewIrp);
+		Free(pRequest);
+	}
+
+	return STATUS_MORE_PROCESSING_REQUIRED;
+}
+
+
+//
 NTSTATUS DetectionCompletion(PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID context)
 {
 	PSCSI_REQUEST_BLOCK pSrb;
