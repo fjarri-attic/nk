@@ -34,58 +34,69 @@ NTSTATUS DispatchScsi (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 //		__asm int 3;
 
 		IoMarkIrpPending(pIrp);
-
-		StartingSector	=	(ULONG)pCdb->CDB10.LogicalBlockByte3 +
-							((ULONG)(pCdb->CDB10.LogicalBlockByte2) << 8) +
-							((ULONG)(pCdb->CDB10.LogicalBlockByte1) << 16) +
-							((ULONG)(pCdb->CDB10.LogicalBlockByte0) << 24);
-
-		SectorsNum		=	(ULONG)pCdb->CDB10.TransferBlocksLsb +
-							((ULONG)(pCdb->CDB10.TransferBlocksMsb) << 8);
-
-		BlocksToRead = GetNumberOfBlocksToRead(StartingSector, SectorsNum, 12);
-
-		pRead = Allocate(sizeof(READ_REQUEST) + BlocksToRead * sizeof(ENCODED_BLOCK));
-		RtlZeroMemory(pRead, sizeof(READ_REQUEST) + BlocksToRead * sizeof(ENCODED_BLOCK));
-
-		pRead->ToRead = (PENCODED_BLOCK)(pRead + 1);
-		pRead->BlocksNum = BlocksToRead;
-
-		pRead->k = 12;
-		pRead->n = 16;
-
-		pRead->pSourceIrp = pIrp;
-		pRead->pSourceSrb = pSrb;
-		pRead->pSourceCdb = pCdb;
-
-		pRead->SourceBuffer = MmGetSystemAddressForMdlSafe(pIrp->MdlAddress, HighPagePriority);
-
-		pRead->pRemoveLock = &((PDEVICE_EXTENSION)(pDeviceObject->DeviceExtension))->RemoveLock;
-		pRead->pNextDevice = ((PDEVICE_EXTENSION)(pDeviceObject->DeviceExtension))->pNextDeviceObject;
-		pRead->StackSize = pRead->pNextDevice->StackSize;
-
-		pRead->StartingSector = StartingSector;
-		pRead->SectorsNum = SectorsNum;
-
-		AllocateBuffer(pRead->k * (RAW_LEN + ECC_LEN + 2), &(pRead->ReadBuffer),
-			&(pRead->ReadBufferMdl));
-
-//		__asm int 3;
-		BlocksToRead = GetNumberOfBlocksToRead(StartingSector, SectorsNum, 12);
-		FillBlocksToRead(pRead->ToRead, StartingSector, SectorsNum, pRead->n, pRead->k);
-
-		pRead->CurrentBlock = 0;
-		pRead->CurrentLength = 0;
-
-//		__asm int 3;
-
-		ReadCurrentBase(pRead);
+		StartReading(pDeviceObject, pIrp);
 
 		return STATUS_PENDING;
 	}
 	else
 		return PassIrp(pDeviceObject, pIrp);
 
+}
+
+//
+VOID StartReading(PDEVICE_OBJECT pDeviceObject, PIRP pIrp)
+{
+	PREAD_REQUEST pRead;
+	ULONG BlocksToRead;
+	ULONG StartingSector, SectorsNum;
+	PSCSI_REQUEST_BLOCK pSrb;
+	PCDB pCdb;
+	PDEVICE_EXTENSION pDeviceExtension = (PDEVICE_EXTENSION)pDeviceObject->DeviceExtension;
+
+	pSrb = IoGetCurrentIrpStackLocation(pIrp)->Parameters.Scsi.Srb;
+	pCdb = (PCDB)pSrb->Cdb;
+
+	StartingSector	=	(ULONG)pCdb->CDB10.LogicalBlockByte3 +
+		((ULONG)(pCdb->CDB10.LogicalBlockByte2) << 8) +
+		((ULONG)(pCdb->CDB10.LogicalBlockByte1) << 16) +
+		((ULONG)(pCdb->CDB10.LogicalBlockByte0) << 24);
+
+	SectorsNum		=	(ULONG)pCdb->CDB10.TransferBlocksLsb +
+		((ULONG)(pCdb->CDB10.TransferBlocksMsb) << 8);
+
+	BlocksToRead = GetNumberOfBlocksToRead(StartingSector, SectorsNum, 12);
+
+	pRead = Allocate(sizeof(READ_REQUEST) + BlocksToRead * sizeof(ENCODED_BLOCK));
+	RtlZeroMemory(pRead, sizeof(READ_REQUEST) + BlocksToRead * sizeof(ENCODED_BLOCK));
+
+	pRead->ToRead = (PENCODED_BLOCK)(pRead + 1);
+	pRead->BlocksNum = BlocksToRead;
+
+	pRead->k = 12;
+	pRead->n = 16;
+
+	pRead->pSourceIrp = pIrp;
+	pRead->pSourceSrb = pSrb;
+	pRead->pSourceCdb = pCdb;
+
+	pRead->SourceBuffer = MmGetSystemAddressForMdlSafe(pIrp->MdlAddress, HighPagePriority);
+
+	pRead->pRemoveLock = &((PDEVICE_EXTENSION)(pDeviceObject->DeviceExtension))->RemoveLock;
+	pRead->pNextDevice = ((PDEVICE_EXTENSION)(pDeviceObject->DeviceExtension))->pNextDeviceObject;
+	pRead->StackSize = pRead->pNextDevice->StackSize;
+
+	pRead->StartingSector = StartingSector;
+	pRead->SectorsNum = SectorsNum;
+
+	AllocateBuffer(pRead->k * (RAW_LEN + ECC_LEN + 2), &(pRead->ReadBuffer),
+		&(pRead->ReadBufferMdl));
+
+	FillBlocksToRead(pRead->ToRead, StartingSector, SectorsNum, pRead->n, pRead->k);
+
+	pRead->CurrentBlock = 0;
+	pRead->CurrentLength = 0;
+
+	ReadCurrentBase(pRead);
 }
 
 //

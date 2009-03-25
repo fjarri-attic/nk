@@ -62,5 +62,6 @@ VOID ReadCurrentBase(PREAD_REQUEST pRead);
 PIRP CreateIrp(CCHAR StackSize, ULONG StartingSector, ULONG SectorsCount,
 			   PMDL read_buffer_mdl, PCHAR read_buffer, BOOLEAN get_data, BOOLEAN get_subchannels);
 VOID FreeIrp(PIRP pIrp);
+VOID StartReading(PDEVICE_OBJECT pDeviceObject, PIRP pIrp);
 
 #endif
