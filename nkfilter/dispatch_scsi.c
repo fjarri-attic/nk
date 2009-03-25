@@ -26,7 +26,12 @@ NTSTATUS DispatchScsi (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 		&& pCdb->CDB10.OperationCode == SCSIOP_READ)
 	{
 		IoMarkIrpPending(pIrp);
-		StartReading(pDeviceObject, pIrp);
+
+		__asm int 3;
+		if(pDeviceExtension->K == 0)
+			StartDeduction(pDeviceObject, pIrp);
+		else
+			StartReading(pDeviceObject, pIrp);
 
 		return STATUS_PENDING;
 	}
