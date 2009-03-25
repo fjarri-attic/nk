@@ -6,10 +6,6 @@ NTSTATUS DispatchScsi (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 	PCDB pCdb;
 	PDEVICE_EXTENSION pDeviceExtension = (PDEVICE_EXTENSION)pDeviceObject->DeviceExtension;
 
-	PREAD_REQUEST pRead;
-	ULONG BlocksToRead;
-	ULONG StartingSector, SectorsNum;
-
 	pSrb = IoGetCurrentIrpStackLocation(pIrp)->Parameters.Scsi.Srb;
 	pCdb = (PCDB)pSrb->Cdb;
 
@@ -18,11 +14,9 @@ NTSTATUS DispatchScsi (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 	if(pSrb->Function == SRB_FUNCTION_EXECUTE_SCSI
 		&& pCdb->CDB10.OperationCode == SCSIOP_READ_TOC)
 	{
-		// Read random sectors of the disk until we get undamaged one
+		// Set our completion routine which will determine whether or not it
+		// is the (n,k)-formatted disk and will modify TOC correspondingly
 
-		// Deduce N, K and read offset from the sector's subchannel
-
-		// Read and modify TOC, so that OS thinks that it is a common data CD
 		IoCopyCurrentIrpStackLocationToNext(pIrp);
 		IoSetCompletionRoutine(pIrp, DetectionCompletion, NULL, TRUE, TRUE, TRUE);
 		return IoCallDriver(pDeviceExtension->pNextDeviceObject, pIrp);
@@ -31,8 +25,6 @@ NTSTATUS DispatchScsi (IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp)
 	if(pSrb->Function == SRB_FUNCTION_EXECUTE_SCSI
 		&& pCdb->CDB10.OperationCode == SCSIOP_READ)
 	{
-//		__asm int 3;
-
 		IoMarkIrpPending(pIrp);
 		StartReading(pDeviceObject, pIrp);
 
